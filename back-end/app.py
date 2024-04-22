@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from typing import Optional
-from routers.alunos import router as router_alunos
+from routers.lista_aeroportos import router as router_lista_aeroportos
 
 app = FastAPI()
-app.include_router(router_alunos)
+app.include_router(router_lista_aeroportos)
 
