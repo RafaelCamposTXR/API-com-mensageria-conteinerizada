@@ -1,15 +1,7 @@
-from flask import Flask
-from auth import auth
+from fastapi import FastAPI
+from typing import Optional
+from routers.alunos import router as router_alunos
 
-
-app = Flask(__name__)
-
-app.register_blueprint(auth)
-
-@app.route('/')
-def index():
-    return 'Hello, World!'
-
-if __name__ == '__main__':
-    app.run(debug=True)
+app = FastAPI()
+app.include_router(router_alunos)
 
