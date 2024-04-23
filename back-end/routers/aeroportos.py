@@ -32,7 +32,7 @@ def retornar_aeroportos(db: Session = Depends(obter_db)):
 
 @router.get("/aeroportos/{origem}/destinos", response_model=List[AeroportosSchema])
 def retornar_aeroportos_por_origem(origem: str, db: Session = Depends(obter_db)):
-    aeroportos_destino = db.query(Aeroportos).filter(Aeroportos.origem == origem).all()
+    aeroportos_destino = db.query(Aeroportos).filter(Aeroportos.cidade == origem).all()
     return aeroportos_destino
 
 #
