@@ -7,12 +7,17 @@ RABBITMQ_USERNAME = 'guest'
 RABBITMQ_PASSWORD = 'guest'
 
 # Inicialização da conexão com o RabbitMQ
-connection = pika.BlockingConnection(pika.ConnectionParameters(
+connect = pika.BlockingConnection(pika.ConnectionParameters(
     host=RABBITMQ_HOST,
     port=RABBITMQ_PORT,
     credentials=pika.PlainCredentials(RABBITMQ_USERNAME, RABBITMQ_PASSWORD)
 ))
-channel = connection.channel()
+canal = connect.channel()
 
 # Declaração de uma fila (opcional)
-channel.queue_declare(queue='minha_fila')
+canal.queue_declare(queue='fila')
+
+queue_name = 'fila'
+
+def callback(ch, method, properties, body):
+    print("Mensagem recebida:", body.decode())
