@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from schemas.aeroportos import AeroportosSchema
 from database.models.aeroporto import Aeroportos
 from database.models.database import SessionLocal
+import pika
 
 
 app = FastAPI()
@@ -23,7 +24,19 @@ def obter_db():
 
 @router.get("/aeroportos", response_model=List[AeroportosSchema])
 def retornar_aeroportos(db: Session = Depends(obter_db)):
+
+    parametros_conexao = pika.ConnectionParameters('localhost')
+    conexao = pika.BlockingConnection(parametros_conexao)
+    canal = conexao.channel()
+    canal.queue_declare(queue='fila0')
+    canal.queue_declare(queue='fila1')
+
+    mensagem = "Requisicao feita pelo usuário vai aqui"
+    canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
+    print(f'Mensagem enviada: {mensagem}')
+
     aeroportos = db.query(Aeroportos).all()
+
     return aeroportos
 
 #
@@ -32,6 +45,17 @@ def retornar_aeroportos(db: Session = Depends(obter_db)):
 
 @router.get("/aeroportos/{origem}/destinos", response_model=List[AeroportosSchema])
 def retornar_aeroportos_por_origem(origem: str, db: Session = Depends(obter_db)):
+
+    parametros_conexao = pika.ConnectionParameters('localhost')
+    conexao = pika.BlockingConnection(parametros_conexao)
+    canal = conexao.channel()
+    canal.queue_declare(queue='fila0')
+    canal.queue_declare(queue='fila1')
+
+    mensagem = "Requisicao feita pelo usuário vai aqui"
+    canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
+    print(f'Mensagem enviada: {mensagem}')
+
     aeroportos_destino = db.query(Aeroportos).filter(Aeroportos.cidade == origem).all()
     return aeroportos_destino
 
@@ -42,6 +66,17 @@ def retornar_aeroportos_por_origem(origem: str, db: Session = Depends(obter_db))
 # create
 @router.post("/aeroportos/", response_model=AeroportosSchema)
 def criar_aeroporto(aeroporto: AeroportosSchema, db: Session = Depends(obter_db)):
+
+    parametros_conexao = pika.ConnectionParameters('localhost')
+    conexao = pika.BlockingConnection(parametros_conexao)
+    canal = conexao.channel()
+    canal.queue_declare(queue='fila0')
+    canal.queue_declare(queue='fila1')
+
+    mensagem = "Requisicao feita pelo usuário vai aqui"
+    canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
+    print(f'Mensagem enviada: {mensagem}')
+
     db_aeroporto = Aeroportos(**aeroporto.dict())
     db.add(db_aeroporto)
     db.commit()
@@ -51,6 +86,17 @@ def criar_aeroporto(aeroporto: AeroportosSchema, db: Session = Depends(obter_db)
 # get
 @router.get("/aeroportos/{aeroporto_id}", response_model=AeroportosSchema)
 def obter_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
+
+    parametros_conexao = pika.ConnectionParameters('localhost')
+    conexao = pika.BlockingConnection(parametros_conexao)
+    canal = conexao.channel()
+    canal.queue_declare(queue='fila0')
+    canal.queue_declare(queue='fila1')
+
+    mensagem = "Requisicao feita pelo usuário vai aqui"
+    canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
+    print(f'Mensagem enviada: {mensagem}')
+
     db_aeroporto = db.query(Aeroportos).filter(Aeroportos.id == aeroporto_id).first()
     if db_aeroporto is None:
         raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
@@ -59,6 +105,17 @@ def obter_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
 # update
 @router.put("/aeroportos/{aeroporto_id}", response_model=AeroportosSchema)
 def atualizar_aeroporto(aeroporto_id: int, aeroporto: AeroportosSchema, db: Session = Depends(obter_db)):
+
+    parametros_conexao = pika.ConnectionParameters('localhost')
+    conexao = pika.BlockingConnection(parametros_conexao)
+    canal = conexao.channel()
+    canal.queue_declare(queue='fila0')
+    canal.queue_declare(queue='fila1')
+
+    mensagem = "Requisicao feita pelo usuário vai aqui"
+    canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
+    print(f'Mensagem enviada: {mensagem}')
+
     db_aeroporto = db.query(Aeroportos).filter(Aeroportos.id == aeroporto_id).first()
     if db_aeroporto is None:
         raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
@@ -71,6 +128,17 @@ def atualizar_aeroporto(aeroporto_id: int, aeroporto: AeroportosSchema, db: Sess
 # delete
 @router.delete("/aeroportos/{aeroporto_id}")
 def deletar_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
+
+    parametros_conexao = pika.ConnectionParameters('localhost')
+    conexao = pika.BlockingConnection(parametros_conexao)
+    canal = conexao.channel()
+    canal.queue_declare(queue='fila0')
+    canal.queue_declare(queue='fila1')
+
+    mensagem = "Requisicao feita pelo usuário vai aqui"
+    canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
+    print(f'Mensagem enviada: {mensagem}')
+    
     db_aeroporto = db.query(Aeroportos).filter(Aeroportos.id == aeroporto_id).first()
     if db_aeroporto is None:
         raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
