@@ -1,56 +1,52 @@
-from fastapi import FastAPI, APIRouter, HTTPException
-from typing import Optional
+from fastapi import FastAPI, APIRouter, Depends, HTTPException
+from typing import List
+from sqlalchemy.orm import Session
+from datetime import datetime
+from pydantic import BaseModel
+from database import SessionLocal
+from database.models import Voo
+from schemas.voos import VoosSchema
 
 app = FastAPI()
 router = APIRouter()
+
+# conectar com o banco de dados
+def obter_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 #
 # RETORNAR VOOS
 #
 
-@router.get("/voos")
-async def get_flights():
-    # Aqui você implementaria a lógica para obter a lista de voos do seu banco de dados ou de outra fonte de dados
-    flights = [
-        {"flight_number": "AA123", "origin": "JFK", "destination": "LAX", "departure_time": "2024-04-22T08:00:00", "arrival_time": "2024-04-22T11:00:00"},
-        {"flight_number": "UA456", "origin": "LAX", "destination": "JFK", "departure_time": "2024-04-22T12:00:00", "arrival_time": "2024-04-22T15:00:00"},
-        # Adicione mais voos conforme necessário
-    ]
+@router.get("/voos/{date}", response_model=list)
+async def retornar_voos(date: str, db: Session = Depends(obter_db)):
+    voos = db.query(Voo).filter(Voo.departure_time == date).all()
+    flights = [{"flight_number": voo.flight_number, "origin": voo.origin, "destination": voo.destination, "departure_time": voo.departure_time, "arrival_time": voo.arrival_time} for voo in voos]
     return flights
 
 #
 # PESQUISAR VOOS
 #
 
-@router.get("/flights/search")
-async def search_flights(origin: str, destination: str, date: Optional[str] = None):
-    # Aqui você implementaria a lógica para pesquisar voos com base nos critérios fornecidos
-    # Por exemplo, consultar o banco de dados para voos que correspondam aos critérios
-    # Esta é apenas uma implementação fictícia para demonstração
-    if date:
-        # Se uma data foi fornecida, pesquise voos para essa data específica
-        # Caso contrário, pesquise todos os voos disponíveis
-        # Você pode precisar converter a data para o formato adequado, dependendo de como os dados são armazenados
-        pass
-    # Simulação de resultados da pesquisa
-    search_results = [
-        {"flight_number": "AA123", "origin": origin, "destination": destination, "departure_time": "2024-04-22T08:00:00", "arrival_time": "2024-04-22T11:00:00"},
-        # Adicione mais resultados conforme necessário
-    ]
+@router.get("/voos/search", response_model=list)
+async def pesquisar_voos(origin: str, destination: str, date: str, passengers: int, db: Session = Depends(obter_db)):
+    voos = db.query(Voo).filter(Voo.origin == origin, Voo.destination == destination, Voo.departure_time == date).all()
+    search_results = [{"flight_number": voo.flight_number, "origin": voo.origin, "destination": voo.destination, "departure_time": voo.departure_time, "arrival_time": voo.arrival_time, "price": voo.tarifa * passengers} for voo in voos]
     return search_results
 
 #
 # EFETUAR COMPRA
 #
 
-@router.post("/flights/purchase/{flight_number}")
-async def purchase_flight(flight_number: str):
-    # Aqui você implementaria a lógica para efetuar a compra do voo com o número fornecido
-    # Por exemplo, verificar a disponibilidade de assentos, calcular o preço, etc.
-    # Esta é apenas uma implementação fictícia para demonstração
-    if flight_number == "AA123":
-        # Simulação de sucesso na compra
-        return {"message": "Purchase successful"}
-    else:
-        # Simulação de falha na compra para outros voos
-        raise HTTPException(status_code=404, detail="Flight not found")
+@router.post("/voos/purchase/{flight_number}", response_model=dict)
+async def efetuar_compra(flight_number: str, passengers: int, db: Session = Depends(obter_db)):
+    voo = db.query(Voo).filter(Voo.flight_number == flight_number).first()
+    if not voo:
+        raise HTTPException(status_code=404, detail="Voo não encontrado")
+    total_price = voo.tarifa * passengers
+    # Aqui você pode adicionar lógica adicional, como verificar a disponibilidade de assentos, etc.
+    return {"message": "Compra realizada com sucesso", "localizador_reserva": "XYZ123", "numero_etickets": passengers}

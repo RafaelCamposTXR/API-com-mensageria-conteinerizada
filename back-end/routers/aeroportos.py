@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy.orm import Session
 from schemas.aeroportos import AeroportosSchema
 from database.models.aeroporto import Aeroportos
-from database import SessionLocal
+from database.models.database import SessionLocal
 
 
 app = FastAPI()
