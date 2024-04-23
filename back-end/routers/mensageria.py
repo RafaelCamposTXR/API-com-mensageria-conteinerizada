@@ -12,16 +12,24 @@ def consumidor():
       conexao.close()
       app.state.mensagem = body
       return 
+    
+    
 
     parametros_conexao = pika.ConnectionParameters('localhost')
     conexao = pika.BlockingConnection(parametros_conexao)
 
     canal = conexao.channel()
-    canal.queue_declare(queue='teste')
+    canal.queue_declare(queue='fila0')
+    canal.queue_declare(queue='fila1')
 
 
-    canal.basic_consume(queue='teste', auto_ack=True, on_message_callback=callback)
-    print("Iniciando processo de consumo")
+    mensagem = "Requisição de dados para o banco"
+    canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
+    print(f'Mensagem enviada: {mensagem}')
 
+    canal.basic_consume(queue='fila1', auto_ack=True, on_message_callback=callback)
+    print("Aguardando Resposta do Banco de Dados")
     canal.start_consuming()
+
+    
     return app.state.mensagem

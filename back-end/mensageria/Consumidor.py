@@ -1,15 +1,17 @@
 import pika
 
 def callback(ch, metodos, props, body):
-  print(f"Mensagem Recebida: {body}")
+  mensagem = "Banco de Dados entregou a resposta"
+  canal.basic_publish(exchange="",routing_key = 'fila1', body=mensagem)
+  print(f"Requisição Recebida: {body}")
 
 parametros_conexao = pika.ConnectionParameters('localhost')
 conexao = pika.BlockingConnection(parametros_conexao)
 
 canal = conexao.channel()
-canal.queue_declare(queue='teste')
+canal.queue_declare(queue='fila1')
 
-canal.basic_consume(queue='teste', auto_ack=True, on_message_callback=callback)
+canal.basic_consume(queue='fila0', auto_ack=True, on_message_callback=callback)
 
 print("Iniciando processo de consumo")
 
