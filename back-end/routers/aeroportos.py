@@ -1,11 +1,7 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
-<<<<<<< Updated upstream
 from schemas.aeroportos import AeroportosSchema
-=======
-from schemas import AeroportosSchema
->>>>>>> Stashed changes
 from database.models.aeroporto import Aeroportos
 from database import SessionLocal
 
@@ -29,11 +25,7 @@ def obter_db():
 @router.get("/aeroportos", response_model=List[AeroportosSchema])
 def retornar_aeroportos(db: Session = Depends(obter_db)):
     aeroportos = db.query(Aeroportos).all()
-<<<<<<< Updated upstream
     return "aeroportos"
-=======
-    return aeroportos
->>>>>>> Stashed changes
 
 #
 # RETORNAR AEROPORTOS POR ORIGEM
@@ -60,11 +52,7 @@ def criar_aeroporto(aeroporto: AeroportosSchema, db: Session = Depends(obter_db)
 # get
 @router.get("/aeroportos/{aeroporto_id}", response_model=AeroportosSchema)
 def obter_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
-<<<<<<< Updated upstream
-    db_aeroporto = db.query(Aeroportos).filter(Aeroporto.id == aeroporto_id).first()
-=======
     db_aeroporto = db.query(Aeroportos).filter(Aeroportos.id == aeroporto_id).first()
->>>>>>> Stashed changes
     if db_aeroporto is None:
         raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
     return db_aeroporto
