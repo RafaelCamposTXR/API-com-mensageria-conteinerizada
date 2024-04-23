@@ -1,19 +1,14 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from typing import Optional
 
 app = FastAPI()
 router = APIRouter()
 
-# Rota para obter a lista de todos os aeroportos
-@router.get("/voos")
-async def get_aeroporto():
-    # Parte de Banco de Dados (Felipe)
-    return {"aeroportos"}
-
 #
 # RETORNAR VOOS
 #
 
+@router.get("/voos")
 async def get_flights():
     # Aqui você implementaria a lógica para obter a lista de voos do seu banco de dados ou de outra fonte de dados
     flights = [
