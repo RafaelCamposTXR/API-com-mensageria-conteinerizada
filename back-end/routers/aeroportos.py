@@ -17,7 +17,6 @@ def obter_db():
     finally:
         db.close()
 
-
 #
 # RETORNAR AEROPORTOS
 #
@@ -25,7 +24,7 @@ def obter_db():
 @router.get("/aeroportos", response_model=List[AeroportosSchema])
 def retornar_aeroportos(db: Session = Depends(obter_db)):
     aeroportos = db.query(Aeroportos).all()
-    return "aeroportos"
+    return aeroportos
 
 #
 # RETORNAR AEROPORTOS POR ORIGEM
