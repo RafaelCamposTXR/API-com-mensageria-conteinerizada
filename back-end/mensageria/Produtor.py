@@ -12,3 +12,4 @@ canal.basic_publish(exchange="",routing_key = 'teste', body=mensagem)
 
 print(f'Mensagem enviada: {mensagem}')
 conexao.close()
+
