@@ -7,3 +7,4 @@ class VoosSchema(BaseModel):
     data_saida = DateTime
     data_chegada = DateTime
     preco = float
+    passageiros = int

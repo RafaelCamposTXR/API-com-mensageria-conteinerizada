@@ -1,29 +1,21 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
-from schemas.aeroportos import AeroportosSchema
-from database.models.aeroporto import Aeroportos
-from database.models.database import SessionLocal
+from models import crud
 
 
 app = FastAPI()
 router = APIRouter()
 
-# conectar com o banco de dados
-def obter_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 #
 # RETORNAR AEROPORTOS
 #
 
 @router.get("/aeroportos", response_model=List[AeroportosSchema])
-def retornar_aeroportos(db: Session = Depends(obter_db)):
-    aeroportos = db.query(Aeroportos).all()
+def retornar_aeroportos():
+    
+    aeroportos = crud.get_aeroportos()
     return aeroportos
 
 #
@@ -32,6 +24,9 @@ def retornar_aeroportos(db: Session = Depends(obter_db)):
 
 @router.get("/aeroportos/{origem}/destinos", response_model=List[AeroportosSchema])
 def retornar_aeroportos_por_origem(origem: str, db: Session = Depends(obter_db)):
+    
+    mensagem = "id: 4"
+
     aeroportos_destino = db.query(Aeroportos).filter(Aeroportos.cidade == origem).all()
     return aeroportos_destino
 

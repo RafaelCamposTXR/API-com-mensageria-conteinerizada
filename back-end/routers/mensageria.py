@@ -1,5 +1,7 @@
-import pika
+import pika, json
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
+from models.schemas import Operation
+
 
 app = FastAPI()
 router = APIRouter()
@@ -22,8 +24,8 @@ def consumidor():
     canal.queue_declare(queue='fila0')
     canal.queue_declare(queue='fila1')
 
-
-    mensagem = "Requisicao feita pelo usuário vai aqui"
+    nome = Operation(id= 1)
+    mensagem = nome.model_dump_json()
     canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
     print(f'Mensagem enviada: {mensagem}')
 
@@ -39,7 +41,12 @@ def consumidor():
     def callback(ch, metodos, props, body):
       mensagem = "Banco de Dados entregou a resposta"
       canal.basic_publish(exchange="",routing_key = 'fila1', body=mensagem)
-      print(f"Requisição Recebida: {body}")
+      resposta = json.loads(body)
+      if resposta.get('id') == 0:
+        print("Requisição Recebida: 0")
+      elif resposta.get('id') == 1:
+        print("Requisição Recebida: 1")
+      conexao.close()
 
     parametros_conexao = pika.ConnectionParameters('localhost')
     conexao = pika.BlockingConnection(parametros_conexao)
