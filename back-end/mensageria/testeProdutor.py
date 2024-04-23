@@ -1,9 +1,14 @@
-from .rabbitmq import connect, canal, queue_name
+import pika
 
-# Mensagem a ser enviada
-mensagem = 'Mensagem De teste'
+parametros_conexao = pika.ConnectionParameters('localhost')
+conexao = pika.BlockingConnection(parametros_conexao)
 
-# Publica a mensagem na fila
-canal.basic_publish(exchange='',
-                      routing_key=queue_name,
-                      body=mensagem)
+canal = conexao.channel()
+canal.queue_declare(queue='teste')
+
+mensagem = "Mensagem de Teste Enviada"
+
+canal.basic_publish(exchange="",routing_key = 'teste', body=mensagem)
+
+print(f'Mensagem enviada: {mensagem}')
+conexao.close()
