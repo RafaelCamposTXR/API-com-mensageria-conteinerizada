@@ -48,24 +48,4 @@ async def efetuar_compra(id: str, passengers: int, db: Session = Depends(obter_d
     total_price = voo.preco * passengers
     return {"message": "Compra realizada com sucesso", "localizador_reserva": "XYZ123", "numero_etickets": passengers}
 
-@router.get("/mensageria")
-def consumidor():
-    app.state.mensagem = ""
-    def callback(ch, metodos, props, body):
-      print(f"Mensagem Recebida: {body}")
-      conexao.close()
-      app.state.mensagem = body
-      return 
 
-    parametros_conexao = pika.ConnectionParameters('localhost')
-    conexao = pika.BlockingConnection(parametros_conexao)
-
-    canal = conexao.channel()
-    canal.queue_declare(queue='teste')
-
-
-    canal.basic_consume(queue='teste', auto_ack=True, on_message_callback=callback)
-    print("Iniciando processo de consumo")
-
-    canal.start_consuming()
-    return app.state.mensagem

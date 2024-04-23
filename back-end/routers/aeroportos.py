@@ -1,53 +1,79 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
+from fastapi import FastAPI, APIRouter, Depends, HTTPException
+from typing import List
 from sqlalchemy.orm import Session
-from schemas import UsuariosSchema
-from database.models import Usuarios
-from database import SessionLocal
-import secrets
+from schemas.aeroportos import AeroportosSchema
+from database.models.aeroporto import Aeroportos
+from database.models.database import SessionLocal
+
 
 app = FastAPI()
 router = APIRouter()
 
-# Função para gerar uma chave de sessão única
-def generate_session_key():
-    return secrets.token_urlsafe(32)
-
-# Função para obter o banco de dados
-def get_db():
+# conectar com o banco de dados
+def obter_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-# Endpoint para login
-@router.post("/login")
-def login_usuario(login_data: UsuariosSchema, db: Session = Depends(get_db)):
-    usuario = db.query(Usuarios).filter(Usuarios.email == login_data.email).first()
-    if not usuario or usuario.senha != login_data.senha:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Falha no login")
-    # Gerar e associar a chave de sessão ao usuário logado
-    usuario.chave_sessao = generate_session_key()
+#
+# RETORNAR AEROPORTOS
+#
+
+@router.get("/aeroportos", response_model=List[AeroportosSchema])
+def retornar_aeroportos(db: Session = Depends(obter_db)):
+    aeroportos = db.query(Aeroportos).all()
+    return aeroportos
+
+#
+# RETORNAR AEROPORTOS POR ORIGEM
+#
+
+@router.get("/aeroportos/{origem}/destinos", response_model=List[AeroportosSchema])
+def retornar_aeroportos_por_origem(origem: str, db: Session = Depends(obter_db)):
+    aeroportos_destino = db.query(Aeroportos).filter(Aeroportos.cidade == origem).all()
+    return aeroportos_destino
+
+#
+# CRUD
+#
+
+# create
+@router.post("/aeroportos/", response_model=AeroportosSchema)
+def criar_aeroporto(aeroporto: AeroportosSchema, db: Session = Depends(obter_db)):
+    db_aeroporto = Aeroportos(**aeroporto.dict())
+    db.add(db_aeroporto)
     db.commit()
-    return {"mensagem": "Login bem-sucedido", "usuario": usuario}
+    db.refresh(db_aeroporto)
+    return db_aeroporto
 
-# Endpoint para logout
-@router.post("/logout")
-def logout(chave_sessao: str, db: Session = Depends(get_db)):
-    usuario = db.query(Usuarios).filter(Usuarios.chave_sessao == chave_sessao).first()
-    if not usuario:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Chave de sessão inválida")
-    # Remover a chave de sessão do usuário
-    usuario.chave_sessao = None
+# get
+@router.get("/aeroportos/{aeroporto_id}", response_model=AeroportosSchema)
+def obter_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
+    db_aeroporto = db.query(Aeroportos).filter(Aeroportos.id == aeroporto_id).first()
+    if db_aeroporto is None:
+        raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
+    return db_aeroporto
+
+# update
+@router.put("/aeroportos/{aeroporto_id}", response_model=AeroportosSchema)
+def atualizar_aeroporto(aeroporto_id: int, aeroporto: AeroportosSchema, db: Session = Depends(obter_db)):
+    db_aeroporto = db.query(Aeroportos).filter(Aeroportos.id == aeroporto_id).first()
+    if db_aeroporto is None:
+        raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
+    for campo, valor in vars(aeroporto).items():
+        setattr(db_aeroporto, campo, valor)
     db.commit()
-    return {"mensagem": "Logout bem-sucedido"}
+    db.refresh(db_aeroporto)
+    return db_aeroporto
 
-# Endpoint para validar sessão
-@router.get("/validate-session")
-def validate_session(chave_sessao: str, db: Session = Depends(get_db)):
-    usuario = db.query(Usuarios).filter(Usuarios.chave_sessao == chave_sessao).first()
-    if not usuario:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Chave de sessão inválida")
-    return {"mensagem": "Sessão é válida", "usuario": usuario}
-
-app.include_router(router)
+# delete
+@router.delete("/aeroportos/{aeroporto_id}")
+def deletar_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
+    db_aeroporto = db.query(Aeroportos).filter(Aeroportos.id == aeroporto_id).first()
+    if db_aeroporto is None:
+        raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
+    db.delete(db_aeroporto)
+    db.commit()
+    return {"message": "Aeroporto deletado com sucesso"}
