@@ -2,7 +2,7 @@ import pika
 
 # Configurações de conexão com o RabbitMQ
 RABBITMQ_HOST = 'localhost'
-RABBITMQ_PORT = 5672
+RABBITMQ_PORT = 8000
 RABBITMQ_USERNAME = 'guest'
 RABBITMQ_PASSWORD = 'guest'
 
