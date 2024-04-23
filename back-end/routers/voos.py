@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from database.models.voo import Voos
 from database.models.database import SessionLocal
 from schemas.voos import VoosSchema
+import pika
 
 app = FastAPI()
 router = APIRouter()
@@ -46,3 +47,25 @@ async def efetuar_compra(id: str, passengers: int, db: Session = Depends(obter_d
         raise HTTPException(status_code=404, detail="Voo não encontrado")
     total_price = voo.preco * passengers
     return {"message": "Compra realizada com sucesso", "localizador_reserva": "XYZ123", "numero_etickets": passengers}
+
+@router.get("/mensageria")
+def consumidor():
+    app.state.mensagem = ""
+    def callback(ch, metodos, props, body):
+      print(f"Mensagem Recebida: {body}")
+      conexao.close()
+      app.state.mensagem = body
+      return 
+
+    parametros_conexao = pika.ConnectionParameters('localhost')
+    conexao = pika.BlockingConnection(parametros_conexao)
+
+    canal = conexao.channel()
+    canal.queue_declare(queue='teste')
+
+
+    canal.basic_consume(queue='teste', auto_ack=True, on_message_callback=callback)
+    print("Iniciando processo de consumo")
+
+    canal.start_consuming()
+    return app.state.mensagem
