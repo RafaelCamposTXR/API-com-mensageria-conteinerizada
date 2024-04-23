@@ -18,6 +18,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+# Cria o esquema do banco de dados
+Base.metadata.create_all(engine)
 
 logger.info("Iniciando a base de dados")
 
