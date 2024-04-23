@@ -1,26 +1,79 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Depends, HTTPException
+from typing import List
+from sqlalchemy.orm import Session
+from schemas import AeroportosSchema
+from database.models.aeroporto import Aeroporto
+from database import SessionLocal
+
 
 app = FastAPI()
 router = APIRouter()
 
-@router.get("/aeroportos")
-async def get_aeroportos():
-    # Aqui você implementaria a lógica para obter a lista de aeroportos do seu banco de dados ou de outra fonte de dados
-    aeroportos = [
-        {"code": "JFK", "name": "John F. Kennedy International Airport", "city": "New York"},
-        {"code": "LAX", "name": "Los Angeles International Airport", "city": "Los Angeles"},
-        # Adicione mais aeroportos conforme necessário
-    ]
+# conectar com o banco de dados
+def obter_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+#
+# RETORNAR AEROPORTOS
+#
+
+@router.get("/aeroportos", response_model=List[AeroportosSchema])
+def retornar_aeroportos(db: Session = Depends(obter_db)):
+    aeroportos = db.query(Aeroporto).all()
     return aeroportos
 
-@router.get("/aeroportos/{origin}")
-async def get_aeroportos_by_origin(origin: str):
-    # Aqui você implementaria a lógica para obter a lista de aeroportos com base na origem fornecida
-    # Por exemplo, filtrar a lista de aeroportos com base na origem
-    aeroportos = [
-        {"code": "JFK", "name": "John F. Kennedy International Airport", "city": "New York"},
-        {"code": "LAX", "name": "Los Angeles International Airport", "city": "Los Angeles"},
-        # Adicione mais aeroportos conforme necessário
-    ]
-    aeroportos_by_origin = [aeroporto for aeroporto in aeroportos if aeroporto["code"] == origin]
-    return aeroportos_by_origin
+#
+# RETORNAR AEROPORTOS POR ORIGEM
+#
+
+@router.get("/aeroportos/{origem}/destinos", response_model=List[AeroportosSchema])
+def retornar_aeroportos_por_origem(origem: str, db: Session = Depends(obter_db)):
+    aeroportos_destino = db.query(Aeroporto).filter(Aeroporto.origem == origem).all()
+    return aeroportos_destino
+
+#
+# CRUD
+#
+
+# create
+@router.post("/aeroportos/", response_model=AeroportosSchema)
+def criar_aeroporto(aeroporto: AeroportosSchema, db: Session = Depends(obter_db)):
+    db_aeroporto = Aeroporto(**aeroporto.dict())
+    db.add(db_aeroporto)
+    db.commit()
+    db.refresh(db_aeroporto)
+    return db_aeroporto
+
+# get
+@router.get("/aeroportos/{aeroporto_id}", response_model=AeroportosSchema)
+def obter_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
+    db_aeroporto = db.query(Aeroporto).filter(Aeroporto.id == aeroporto_id).first()
+    if db_aeroporto is None:
+        raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
+    return db_aeroporto
+
+# update
+@router.put("/aeroportos/{aeroporto_id}", response_model=AeroportosSchema)
+def atualizar_aeroporto(aeroporto_id: int, aeroporto: AeroportosSchema, db: Session = Depends(obter_db)):
+    db_aeroporto = db.query(Aeroporto).filter(Aeroporto.id == aeroporto_id).first()
+    if db_aeroporto is None:
+        raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
+    for campo, valor in vars(aeroporto).items():
+        setattr(db_aeroporto, campo, valor)
+    db.commit()
+    db.refresh(db_aeroporto)
+    return db_aeroporto
+
+# delete
+@router.delete("/aeroportos/{aeroporto_id}")
+def deletar_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
+    db_aeroporto = db.query(Aeroporto).filter(Aeroporto.id == aeroporto_id).first()
+    if db_aeroporto is None:
+        raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
+    db.delete(db_aeroporto)
+    db.commit()
+    return {"message": "Aeroporto deletado com sucesso"}
