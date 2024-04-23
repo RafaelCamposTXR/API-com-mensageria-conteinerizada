@@ -1,8 +1,8 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
-from schemas import AeroportosSchema
-from database.models.aeroporto import Aeroporto
+from schemas.aeroportos import AeroportosSchema
+from database.models.aeroporto import Aeroportos
 from database import SessionLocal
 
 
@@ -17,14 +17,15 @@ def obter_db():
     finally:
         db.close()
 
+
 #
 # RETORNAR AEROPORTOS
 #
 
 @router.get("/aeroportos", response_model=List[AeroportosSchema])
 def retornar_aeroportos(db: Session = Depends(obter_db)):
-    aeroportos = db.query(Aeroporto).all()
-    return aeroportos
+    aeroportos = db.query(Aeroportos).all()
+    return "aeroportos"
 
 #
 # RETORNAR AEROPORTOS POR ORIGEM
@@ -32,7 +33,7 @@ def retornar_aeroportos(db: Session = Depends(obter_db)):
 
 @router.get("/aeroportos/{origem}/destinos", response_model=List[AeroportosSchema])
 def retornar_aeroportos_por_origem(origem: str, db: Session = Depends(obter_db)):
-    aeroportos_destino = db.query(Aeroporto).filter(Aeroporto.origem == origem).all()
+    aeroportos_destino = db.query(Aeroportos).filter(Aeroportos.origem == origem).all()
     return aeroportos_destino
 
 #
@@ -42,7 +43,7 @@ def retornar_aeroportos_por_origem(origem: str, db: Session = Depends(obter_db))
 # create
 @router.post("/aeroportos/", response_model=AeroportosSchema)
 def criar_aeroporto(aeroporto: AeroportosSchema, db: Session = Depends(obter_db)):
-    db_aeroporto = Aeroporto(**aeroporto.dict())
+    db_aeroporto = Aeroportos(**aeroporto.dict())
     db.add(db_aeroporto)
     db.commit()
     db.refresh(db_aeroporto)
@@ -51,7 +52,7 @@ def criar_aeroporto(aeroporto: AeroportosSchema, db: Session = Depends(obter_db)
 # get
 @router.get("/aeroportos/{aeroporto_id}", response_model=AeroportosSchema)
 def obter_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
-    db_aeroporto = db.query(Aeroporto).filter(Aeroporto.id == aeroporto_id).first()
+    db_aeroporto = db.query(Aeroportos).filter(Aeroporto.id == aeroporto_id).first()
     if db_aeroporto is None:
         raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
     return db_aeroporto
@@ -59,7 +60,7 @@ def obter_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
 # update
 @router.put("/aeroportos/{aeroporto_id}", response_model=AeroportosSchema)
 def atualizar_aeroporto(aeroporto_id: int, aeroporto: AeroportosSchema, db: Session = Depends(obter_db)):
-    db_aeroporto = db.query(Aeroporto).filter(Aeroporto.id == aeroporto_id).first()
+    db_aeroporto = db.query(Aeroportos).filter(Aeroportos.id == aeroporto_id).first()
     if db_aeroporto is None:
         raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
     for campo, valor in vars(aeroporto).items():
@@ -71,7 +72,7 @@ def atualizar_aeroporto(aeroporto_id: int, aeroporto: AeroportosSchema, db: Sess
 # delete
 @router.delete("/aeroportos/{aeroporto_id}")
 def deletar_aeroporto(aeroporto_id: int, db: Session = Depends(obter_db)):
-    db_aeroporto = db.query(Aeroporto).filter(Aeroporto.id == aeroporto_id).first()
+    db_aeroporto = db.query(Aeroportos).filter(Aeroportos.id == aeroporto_id).first()
     if db_aeroporto is None:
         raise HTTPException(status_code=404, detail="Aeroporto não encontrado")
     db.delete(db_aeroporto)
