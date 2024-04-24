@@ -7,9 +7,6 @@ import pika
 app = FastAPI()
 router = APIRouter()
 
-# conectar com o banco de dados
-
-
 #
 # RETORNAR VOOS
 #
@@ -22,9 +19,7 @@ async def retornar_voos(date: str):
       print(f"Mensagem Recebida: {body}")
       conexao.close()
       app.state.mensagem = body
-      return 
-    
-    
+      return
 
     parametros_conexao = pika.ConnectionParameters('localhost')
     conexao = pika.BlockingConnection(parametros_conexao)
@@ -42,7 +37,6 @@ async def retornar_voos(date: str):
     print("Aguardando Resposta do Banco de Dados")
     canal.start_consuming()
 
-    
     return app.state.mensagem
 
 #
@@ -58,8 +52,6 @@ async def pesquisar_voos(passengers: int):
     app.state.mensagem = body
     return 
     
-    
-
   parametros_conexao = pika.ConnectionParameters('localhost')
   conexao = pika.BlockingConnection(parametros_conexao)
 
@@ -76,7 +68,6 @@ async def pesquisar_voos(passengers: int):
   print("Aguardando Resposta do Banco de Dados")
   canal.start_consuming()
 
-    
   return app.state.mensagem
 
 #
@@ -93,8 +84,6 @@ async def efetuar_compra(id: str, passengers: int, preco: int):
     app.state.mensagem = body
     return 
     
-    
-
   parametros_conexao = pika.ConnectionParameters('localhost')
   conexao = pika.BlockingConnection(parametros_conexao)
 
@@ -111,5 +100,4 @@ async def efetuar_compra(id: str, passengers: int, preco: int):
   print("Aguardando Resposta do Banco de Dados")
   canal.start_consuming()
 
-    
   return app.state.mensagem
