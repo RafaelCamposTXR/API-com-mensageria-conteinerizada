@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
-from models1.schemas import VoosSchema, AeroportosSchema, ComprasSchema, UsuariosSchema, Operation
+from models1.schemas import VoosSchema, Operation
 import pika
 
 app = FastAPI()
@@ -13,7 +13,6 @@ router = APIRouter()
 
 @router.post("/voos")
 async def retornar_voos(date: str):
-
     app.state.mensagem = ""
     def callback(ch, metodos, props, body):
       print(f"Mensagem Recebida: {body}")
@@ -43,7 +42,7 @@ async def retornar_voos(date: str):
 # PESQUISAR VOOS
 #
 
-@router.post("/voos/search", response_model=List[VoosSchema])
+@router.post("/voos/search")
 async def pesquisar_voos(passengers: int):
   app.state.mensagem = ""
   def callback(ch, metodos, props, body):
@@ -74,8 +73,8 @@ async def pesquisar_voos(passengers: int):
 # EFETUAR COMPRA
 #
 
-@router.post("/voos/purchase/{id}", response_model=dict)
-async def efetuar_compra(id: str, passengers: int, preco: int):
+@router.post("/voos/purchase/{id}")
+async def efetuar_compra(id: int, passengers: int, preco: float):
 
   app.state.mensagem = ""
   def callback(ch, metodos, props, body):
@@ -91,7 +90,7 @@ async def efetuar_compra(id: str, passengers: int, preco: int):
   canal.queue_declare(queue='fila0')
   canal.queue_declare(queue='fila1')
 
-  nome = Operation(id= 8, id_voo= id, passageiros = passengers, preco = preco )
+  nome = Operation(id= 8, id_voo= id, passageiros = passengers, preco = preco)
   mensagem = nome.model_dump_json()
   canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
   print(f'Mensagem enviada: {mensagem}')

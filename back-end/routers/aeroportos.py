@@ -23,9 +23,7 @@ def retornar_aeroportos():
       conexao.close()
       app.state.mensagem = body
       return 
-    
-    
-
+  
     parametros_conexao = pika.ConnectionParameters('localhost')
     conexao = pika.BlockingConnection(parametros_conexao)
 
@@ -41,7 +39,6 @@ def retornar_aeroportos():
     canal.basic_consume(queue='fila1', auto_ack=True, on_message_callback=callback)
     print("Aguardando Resposta do Banco de Dados")
     canal.start_consuming()
-
     
     return app.state.mensagem
 
@@ -74,6 +71,5 @@ def retornar_aeroportos_por_origem(origem: str):
     print("Aguardando Resposta do Banco de Dados")
     canal.start_consuming()
 
-    
     return app.state.mensagem
 
