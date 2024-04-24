@@ -29,3 +29,4 @@ class Operation(BaseModel):
     origem: Optional[str] = None
     data: Optional[str] = None
     passageiros: Optional[int] = None
+    id_voo: Optional[int] = None

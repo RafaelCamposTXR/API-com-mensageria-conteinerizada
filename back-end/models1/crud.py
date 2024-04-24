@@ -33,6 +33,16 @@ cur.execute("""CREATE TABLE IF NOT EXISTS usuarios (
             senha VARCHAR(40)
             );""")
 
+cur.execute("""CREATE TABLE IF NOT EXISTS reservas (
+            id INT PRIMARY KEY, 
+            id_voo INT, 
+            passageiros INT, 
+            total FLOAT
+            );""")
+
+cur.execute("""INSERT INTO reservas(id, id_voo, passageiros, total) VALUES
+            (0, 10, 200, 150 );""")
+
 #
 # retorna voos
 #
@@ -99,9 +109,15 @@ def get_voos_menor_tarifa(passageiros):
         FROM voos
         ORDER BY preco;
     """,)
-    valor = cur.fetchone()
+    voo = cur.fetchone()
     conn.commit()
-    return valor
+    if voo:
+        preco_voo = float(voo['preco'])
+        total = passageiros * preco_voo
+        print("O total é %.2f", total)
+        return voo
+    else:
+        return None, None
 
 
 #
