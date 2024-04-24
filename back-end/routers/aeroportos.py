@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
 from models import crud
-
+from models.schemas import AeroportosSchema
 
 app = FastAPI()
 router = APIRouter()
