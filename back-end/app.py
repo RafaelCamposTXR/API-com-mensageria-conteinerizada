@@ -13,4 +13,4 @@ app.include_router(router_voos)
 
 @app.get("/")
 async def root():
-  return {"Aiai viu"}
+  return {"ASA"}
