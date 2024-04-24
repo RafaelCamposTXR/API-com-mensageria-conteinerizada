@@ -15,7 +15,7 @@ router = APIRouter()
 # RETORNAR AEROPORTOS
 #
 
-@router.get("/aeroportos", response_model=List[AeroportosSchema])
+@router.post("/aeroportos")
 def retornar_aeroportos():
     app.state.mensagem = ""
     def callback(ch, metodos, props, body):
@@ -49,7 +49,7 @@ def retornar_aeroportos():
 # RETORNAR AEROPORTOS POR ORIGEM
 #
 
-@router.get("/aeroportos/{origem}/destinos", response_model=List[AeroportosSchema])
+@router.post("/aeroportos/{origem}/destinos")
 def retornar_aeroportos_por_origem(origem: str):
     app.state.mensagem = ""
     def callback(ch, metodos, props, body):
@@ -58,8 +58,6 @@ def retornar_aeroportos_por_origem(origem: str):
       app.state.mensagem = body
       return 
     
-    
-
     parametros_conexao = pika.ConnectionParameters('localhost')
     conexao = pika.BlockingConnection(parametros_conexao)
 

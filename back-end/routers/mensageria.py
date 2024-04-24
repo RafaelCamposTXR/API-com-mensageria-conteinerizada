@@ -1,6 +1,7 @@
 import pika, json
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from models.schemas import Operation
+from models1 import crud
 import psycopg2
 
 app = FastAPI()
@@ -37,28 +38,31 @@ def consumidor():
     return app.state.mensagem
 
 @router.get("/filaBanco")
-def consumidor():
+def consumidor_requisicoes():
     def callback(ch, metodos, props, body):
-      
       resposta = json.loads(body)
       if resposta.get('id') == 4:
-        print("Requisição Recebida: Retornar Aeroportos")
+        print(f"Requisição Recebida:{json.dumps(crud.get_voos())} ")
+        mensagem = json.dumps(crud.get_voos())
 
       elif resposta.get('id') == 5:
         print("Requisição Recebida: Retornar Aeroportos Por Origem")
+        mensagem = json.dumps(crud.get_aeroportos_por_origem(resposta.get('origem')))
 
       elif resposta.get('id') == 6:
         print("Requisição Recebida: Retornar vôos para a Data Informada")
+        mensagem = "Vôos para a data informada"
 
       elif resposta.get('id') == 7:
         print("Requisição Recebida: Retornar voos com a menor tarifa para um dado número de passageiros")
+        mensagem = "Voos com a menor tarifa"
       
       elif resposta.get('id') == 8:
         print("Requisição Recebida: Efetua compra e reserva dos vôos e tarifas selecionados e retorna o localizador")
-        
-      mensagem = "Crud acontece aqui"
+        mensagem = "Compra Efetuada"
+      else:
+        mensagem = "Erro de Mensageria"
       canal.basic_publish(exchange="",routing_key = 'fila1', body=mensagem)
-      conexao.close()
 
     parametros_conexao = pika.ConnectionParameters('localhost')
     conexao = pika.BlockingConnection(parametros_conexao)
