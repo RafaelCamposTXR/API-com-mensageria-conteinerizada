@@ -10,6 +10,7 @@ class Aeroportos(Base):
     cidade = Column(String(40), nullable=False)
     estado = Column(String(2), nullable=False)    
     added_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('Now()'))
+    
 class Voos(Base):
     __tablename__ = 'voos'
 
