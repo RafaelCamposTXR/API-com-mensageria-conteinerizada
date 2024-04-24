@@ -22,6 +22,7 @@ class VoosSchema(BaseModel):
     data_saida: str
     data_chegada: str
     preco: float
+    passageiros: int
 
 class Operation(BaseModel):
     id: int
