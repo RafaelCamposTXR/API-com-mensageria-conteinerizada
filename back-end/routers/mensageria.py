@@ -14,9 +14,7 @@ def produtor():
       print(f"Mensagem Recebida: {body}")
       conexao.close()
       app.state.mensagem = body
-      return 
-    
-    
+      return
 
     parametros_conexao = pika.ConnectionParameters('localhost')
     conexao = pika.BlockingConnection(parametros_conexao)
@@ -62,11 +60,12 @@ def consumidor_requisicoes():
         
       elif resposta.get('id') == 8:
         print("Requisição Recebida: Efetua compra e reserva dos vôos e tarifas selecionados e retorna o localizador")
-        mensagem = json.dumps(crud.get_voo_por_data(resposta.get('data')))
+        mensagem = json.dumps(crud.get_voo_por_data(resposta.get('id_voo', 'passageiros', 'preco')))
         print(mensagem)
 
       elif resposta.get('id') == -1:
         mensagem = "Mensagem de teste recebida com sucesso"
+
       else:
         mensagem = "Erro de Mensageria"
       canal.basic_publish(exchange="",routing_key = 'fila1', body=mensagem)

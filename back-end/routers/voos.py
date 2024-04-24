@@ -74,7 +74,7 @@ async def pesquisar_voos(passengers: int):
 #
 
 @router.post("/voos/purchase/{id}")
-async def efetuar_compra(id: int, passengers: int, preco: float):
+async def efetuar_compra(id_voo: int, passengers: int, preco: float):
 
   app.state.mensagem = ""
   def callback(ch, metodos, props, body):
@@ -90,7 +90,7 @@ async def efetuar_compra(id: int, passengers: int, preco: float):
   canal.queue_declare(queue='fila0')
   canal.queue_declare(queue='fila1')
 
-  nome = Operation(id= 8, id_voo= id, passageiros = passengers, preco = preco)
+  nome = Operation(id= 8, id_voo= id_voo, passageiros = passengers, preco = preco)
   mensagem = nome.model_dump_json()
   canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
   print(f'Mensagem enviada: {mensagem}')
