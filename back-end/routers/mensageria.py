@@ -2,6 +2,7 @@ import pika, json
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from models.schemas import Operation
 import psycopg2
+from models1 import crud 
 
 app = FastAPI()
 router = APIRouter()
@@ -44,14 +45,7 @@ def consumidor():
       resposta = json.loads(body)
       if resposta.get('id') == 0:
         print("Requisição Recebida: 0")
-        conn = psycopg2.connect(host="localhost", dbname="bd_trabalho_asa", user="postgres", password="banco123", port=5432)
-        cur = conn.cursor()
-        cur.execute("""SELECT * FROM voos;""")
-        print(cur.fetchall())
-        conn.commit()
-        cur.close()
-        conn.close()
-        print("deu certo")
+        crud.get_voos()
 
       elif resposta.get('id') == 1:
         print("Requisição Recebida: 1")
