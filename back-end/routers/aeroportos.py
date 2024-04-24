@@ -3,13 +3,9 @@ from typing import List
 from sqlalchemy.orm import Session
 from models import crud
 from models.schemas import AeroportosSchema
-<<<<<<< Updated upstream
 from models.schemas import Operation
 import psycopg2, pika, json
 
-=======
-import pika
->>>>>>> Stashed changes
 
 app = FastAPI()
 router = APIRouter()
