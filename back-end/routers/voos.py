@@ -90,7 +90,7 @@ async def efetuar_compra(id_voo: int, passengers: int, preco: float):
   canal.queue_declare(queue='fila0')
   canal.queue_declare(queue='fila1')
 
-  nome = Operation(id= 8, id_voo= id_voo, passageiros = passengers, preco = preco)
+  nome = Operation(id= 8, id_voo= id_voo, passageiros = passengers, total = preco)
   mensagem = nome.model_dump_json()
   canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
   print(f'Mensagem enviada: {mensagem}')

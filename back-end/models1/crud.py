@@ -40,8 +40,6 @@ cur.execute("""CREATE TABLE IF NOT EXISTS reservas (
             total FLOAT
             );""")
 
-cur.execute("""INSERT INTO reservas(id, id_voo, passageiros, total) VALUES
-            (0, 10, 200, 150 );""")
 
 #
 # retorna voos
@@ -125,12 +123,12 @@ def get_voos_menor_tarifa(passageiros):
 # retorna o localizador da reserva e o número de e-tickets
 #
 
-def efetuar_compra(id_voo, passageiros, preco):
-    cur.execute("""
-        INSERT INTO reservas (id_voo, passageiros, preco)
-        VALUES (%d, %d, %.2f);
-    """, (id_voo, passageiros, preco))
-        
-    id_reserva = cur.lastrowid
+def efetuar_compra(id_voo, passageiros, total):
+    cur.execute(f"""
+        INSERT INTO reservas (id_voo, passageiros, total)
+        VALUES ({id_voo}, {passageiros}, {total})
+        RETURNING id;
+    """)  
+    id_reserva = cur.fetchone()[0]
     conn.commit()
     return f"Seu localizador de reserva é: {id_reserva} e foram criados {passageiros} e-tickets"

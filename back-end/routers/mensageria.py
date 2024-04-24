@@ -60,7 +60,7 @@ def consumidor_requisicoes():
         
       elif resposta.get('id') == 8:
         print("Requisição Recebida: Efetua compra e reserva dos vôos e tarifas selecionados e retorna o localizador")
-        mensagem = json.dumps(crud.efetuar_compra(resposta.get('id_voo', 'passageiros')))
+        mensagem = json.dumps(crud.efetuar_compra(resposta.get('id_voo'),resposta.get('passageiros'),resposta.get('total')))
         print(mensagem)
 
       elif resposta.get('id') == -1:

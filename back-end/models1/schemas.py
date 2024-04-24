@@ -30,3 +30,4 @@ class Operation(BaseModel):
     data: Optional[str] = None
     passageiros: Optional[int] = None
     id_voo: Optional[int] = None
+    total: Optional[float] = None
