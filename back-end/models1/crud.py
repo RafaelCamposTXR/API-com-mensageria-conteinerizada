@@ -3,8 +3,6 @@ import psycopg2
 conn = psycopg2.connect(host="localhost", dbname="bd_trabalho_asa", user="postgres", password="bancosenha", port=5432)
 cur = conn.cursor()
 
-
-
 cur.execute("""CREATE TABLE IF NOT EXISTS voos (
             id INT PRIMARY KEY, 
             aeroporto_saida INT, 
@@ -35,10 +33,10 @@ cur.execute("""CREATE TABLE IF NOT EXISTS usuarios (
             senha VARCHAR(40)
             );""")
 
-
-
-
+#
 # retorna voos
+#
+
 def get_voos():
     cur.execute("""
             SELECT * FROM voos;
@@ -49,8 +47,10 @@ def get_voos():
     return resposta
 
 
-
+#
 # retorna aeroportos
+#
+
 def get_aeroportos():
     cur.execute("""
             SELECT * FROM aeroportos;
@@ -59,8 +59,10 @@ def get_aeroportos():
     conn.commit()
     print("deu certo")
 
-
+#
 # retorna aeroportos de destino de acordo com o aeroporto de origem
+#
+
 def get_aeroportos_por_origem(origem):
     cur.execute(f"""
         SELECT DISTINCT *
@@ -71,8 +73,10 @@ def get_aeroportos_por_origem(origem):
     conn.commit()
     return valor
 
-
+#
 # retorna voo em certa data
+#
+
 def get_voo_por_data(data):
     cur.execute(f"""
         SELECT DISTINCT *
@@ -84,9 +88,11 @@ def get_voo_por_data(data):
     conn.commit()
     return valor
 
-
+#
 # efetua a pesquisa de voos e retorna uma lista de voos com a
 # menor tarifa disponível no momento para o número de passageiros informados
+#
+
 def get_voos_menor_tarifa(passageiros):
     cur.execute(f"""
         SELECT *
@@ -98,11 +104,11 @@ def get_voos_menor_tarifa(passageiros):
     return valor
 
 
+#
+# efetua a reserva e a compra dos voos e tarifas selecionados e
+# retorna o localizador da reserva e o número de e-tickets
+#
 
-# efetua a reserva e a compra dos voos e tarifas selecionados e
-# retorna o localizador da reserva e o número de e-tickets
-# efetua a reserva e a compra dos voos e tarifas selecionados e
-# retorna o localizador da reserva e o número de e-tickets
 def efetuar_compra(id_voo, passageiros, preco):
     cur.execute("""
         INSERT INTO reservas (id_voo, passageiros, preco)
