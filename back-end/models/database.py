@@ -6,7 +6,8 @@ from sqlalchemy_utils import database_exists, create_database
 
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:banco123@10.18.0.20:5432/bd_trabalho_asa"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+#engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine("sqlite:///mydb.db", echo=True)
 
 if not database_exists(engine.url):
     create_database(engine.url)
