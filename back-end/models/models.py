@@ -27,7 +27,7 @@ class Compras(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     id_voo = Column(ForeignKey(Voos.id)) 
-    data_compra = Column(DateTime, default=DateTime.now()) 
+    data_compra = Column(DateTime, default=DateTime) 
     added_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('Now()'))
 
 class Usuarios(Base):

@@ -13,3 +13,13 @@ def get_voos():
     cur.close()
     conn.close()
     print("deu certo")
+
+def get_aeroportos():
+    cur.execute("""
+            SELECT * FROM aeroportos;
+            """)
+    print(cur.fetchall())
+    conn.commit()
+    cur.close()
+    conn.close()
+    print("deu certo")

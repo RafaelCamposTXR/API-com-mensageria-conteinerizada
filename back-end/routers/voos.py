@@ -1,9 +1,7 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
-from database.models.voo import Voos
-from database.models.database import SessionLocal
-from schemas.voos import VoosSchema
+from models.schemas import VoosSchema, AeroportosSchema, ComprasSchema, UsuariosSchema, Operation
 import pika
 
 app = FastAPI()
@@ -24,18 +22,33 @@ def obter_db():
 @router.get("/voos/{date}", response_model=list[VoosSchema])
 async def retornar_voos(date: str, db: Session = Depends(obter_db)):
 
+    app.state.mensagem = ""
+    def callback(ch, metodos, props, body):
+      print(f"Mensagem Recebida: {body}")
+      conexao.close()
+      app.state.mensagem = body
+      return 
+    
+    
+
     parametros_conexao = pika.ConnectionParameters('localhost')
     conexao = pika.BlockingConnection(parametros_conexao)
+
     canal = conexao.channel()
     canal.queue_declare(queue='fila0')
     canal.queue_declare(queue='fila1')
 
-    mensagem = "Requisicao feita pelo usuário vai aqui"
+    nome = Operation(id= 1, )
+    mensagem = nome.model_dump_json()
     canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
     print(f'Mensagem enviada: {mensagem}')
 
-    voos = db.query(Voos).filter(Voos.data_saida == date).all()
-    return voos
+    canal.basic_consume(queue='fila1', auto_ack=True, on_message_callback=callback)
+    print("Aguardando Resposta do Banco de Dados")
+    canal.start_consuming()
+
+    
+    return app.state.mensagem
 
 #
 # PESQUISAR VOOS
@@ -43,20 +56,7 @@ async def retornar_voos(date: str, db: Session = Depends(obter_db)):
 
 @router.get("/voos/search", response_model=List[VoosSchema])
 async def pesquisar_voos(origin: int, destination: int, date: str, passengers: int, db: Session = Depends(obter_db)):
-    
-    parametros_conexao = pika.ConnectionParameters('localhost')
-    conexao = pika.BlockingConnection(parametros_conexao)
-    canal = conexao.channel()
-    canal.queue_declare(queue='fila0')
-    canal.queue_declare(queue='fila1')
-
-    mensagem = "Requisicao feita pelo usuário vai aqui"
-    canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
-    print(f'Mensagem enviada: {mensagem}')
-    
-    voos = db.query(Voos).filter(Voos.aeroporto_saida == origin, Voos.aeroporto_chegada == destination, Voos.data_saida == date).all()
-    search_results = [{"aeroporto_saida": voo.aeroporto_saida, "aeroporto_chegada": voo.aeroporto_chegada, "data_saida": voo.data_saida, "data_chegada": voo.data_chegada, "preco": voo.preco * passengers} for voo in voos]
-    return search_results
+  return
 
 #
 # EFETUAR COMPRA
@@ -81,24 +81,3 @@ async def efetuar_compra(id: str, passengers: int, db: Session = Depends(obter_d
     total_price = voo.preco * passengers
     return {"message": "Compra realizada com sucesso", "localizador_reserva": "XYZ123", "numero_etickets": passengers}
 
-@router.get("/mensageria")
-def consumidor():
-    app.state.mensagem = ""
-    def callback(ch, metodos, props, body):
-      print(f"Mensagem Recebida: {body}")
-      conexao.close()
-      app.state.mensagem = body
-      return 
-
-    parametros_conexao = pika.ConnectionParameters('localhost')
-    conexao = pika.BlockingConnection(parametros_conexao)
-
-    canal = conexao.channel()
-    canal.queue_declare(queue='teste')
-
-
-    canal.basic_consume(queue='teste', auto_ack=True, on_message_callback=callback)
-    print("Iniciando processo de consumo")
-
-    canal.start_consuming()
-    return app.state.mensagem

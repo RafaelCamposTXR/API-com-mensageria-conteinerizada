@@ -2,7 +2,6 @@ import pika, json
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from models.schemas import Operation
 import psycopg2
-from models1 import crud 
 
 app = FastAPI()
 router = APIRouter()
@@ -37,18 +36,28 @@ def consumidor():
     
     return app.state.mensagem
 
-@router.get("/exemplo")
+@router.get("/filaBanco")
 def consumidor():
     def callback(ch, metodos, props, body):
-      mensagem = "Banco de Dados entregou a resposta"
-      canal.basic_publish(exchange="",routing_key = 'fila1', body=mensagem)
+      
       resposta = json.loads(body)
-      if resposta.get('id') == 0:
-        print("Requisição Recebida: 0")
-        crud.get_voos()
+      if resposta.get('id') == 4:
+        print("Requisição Recebida: Retornar Aeroportos")
 
-      elif resposta.get('id') == 1:
-        print("Requisição Recebida: 1")
+      elif resposta.get('id') == 5:
+        print("Requisição Recebida: Retornar Aeroportos Por Origem")
+
+      elif resposta.get('id') == 6:
+        print("Requisição Recebida: Retornar vôos para a Data Informada")
+
+      elif resposta.get('id') == 7:
+        print("Requisição Recebida: Retornar voos com a menor tarifa para um dado número de passageiros")
+      
+      elif resposta.get('id') == 8:
+        print("Requisição Recebida: Efetua compra e reserva dos vôos e tarifas selecionados e retorna o localizador")
+        
+      mensagem = "Crud acontece aqui"
+      canal.basic_publish(exchange="",routing_key = 'fila1', body=mensagem)
       conexao.close()
 
     parametros_conexao = pika.ConnectionParameters('localhost')
