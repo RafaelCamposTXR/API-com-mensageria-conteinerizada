@@ -1,14 +1,14 @@
 import pika, json
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
-from models.schemas import Operation
+from models1.schemas import Operation
 from models1 import crud
 import psycopg2
 
 app = FastAPI()
 router = APIRouter()
 
-@router.get("/mensageria")
-def consumidor():
+@router.get("/teste-mensageria")
+def produtor():
     app.state.mensagem = ""
     def callback(ch, metodos, props, body):
       print(f"Mensagem Recebida: {body}")
@@ -25,7 +25,7 @@ def consumidor():
     canal.queue_declare(queue='fila0')
     canal.queue_declare(queue='fila1')
 
-    nome = Operation(id= 1)
+    nome = Operation(id= -1)
     mensagem = nome.model_dump_json()
     canal.basic_publish(exchange="",routing_key = 'fila0', body=mensagem)
     print(f'Mensagem enviada: {mensagem}')
@@ -37,7 +37,7 @@ def consumidor():
     
     return app.state.mensagem
 
-@router.get("/filaBanco")
+@router.get("/BD_Consumidor")
 def consumidor_requisicoes():
     def callback(ch, metodos, props, body):
       resposta = json.loads(body)
@@ -48,18 +48,25 @@ def consumidor_requisicoes():
       elif resposta.get('id') == 5:
         print("Requisição Recebida: Retornar Aeroportos Por Origem")
         mensagem = json.dumps(crud.get_aeroportos_por_origem(resposta.get('origem')))
+        print(mensagem)
 
       elif resposta.get('id') == 6:
         print("Requisição Recebida: Retornar vôos para a Data Informada")
-        mensagem = "Vôos para a data informada"
+        mensagem = json.dumps(crud.get_voo_por_data(resposta.get('data')))
+        print(mensagem)
 
       elif resposta.get('id') == 7:
         print("Requisição Recebida: Retornar voos com a menor tarifa para um dado número de passageiros")
-        mensagem = "Voos com a menor tarifa"
-      
+        mensagem = json.dumps((crud.get_voos_menor_tarifa(resposta.get('passageiros'))))
+        print(mensagem)
+        
       elif resposta.get('id') == 8:
         print("Requisição Recebida: Efetua compra e reserva dos vôos e tarifas selecionados e retorna o localizador")
-        mensagem = "Compra Efetuada"
+        mensagem = json.dumps(crud.get_voo_por_data(resposta.get('data')))
+        print(mensagem)
+
+      elif resposta.get('id') == -1:
+        mensagem = "Mensagem de teste recebida com sucesso"
       else:
         mensagem = "Erro de Mensageria"
       canal.basic_publish(exchange="",routing_key = 'fila1', body=mensagem)

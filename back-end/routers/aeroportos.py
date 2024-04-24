@@ -1,9 +1,9 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
-from models import crud
-from models.schemas import AeroportosSchema
-from models.schemas import Operation
+from models1 import crud
+from models1.schemas import AeroportosSchema
+from models1.schemas import Operation
 import psycopg2, pika, json
 
 
@@ -49,7 +49,7 @@ def retornar_aeroportos():
 # RETORNAR AEROPORTOS POR ORIGEM
 #
 
-@router.post("/aeroportos/{origem}/destinos")
+@router.post("/aeroportos_destinos")
 def retornar_aeroportos_por_origem(origem: str):
     app.state.mensagem = ""
     def callback(ch, metodos, props, body):
