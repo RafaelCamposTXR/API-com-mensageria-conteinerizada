@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, TIMESTAMP, text, DateTime, Float
 from sqlalchemy.orm import relationship
-from models.database import Base
+from .database import Base
 
 class Aeroportos(Base):
     __tablename__ = 'aeroportos'
