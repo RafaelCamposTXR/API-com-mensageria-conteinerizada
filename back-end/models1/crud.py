@@ -109,13 +109,8 @@ def get_voos_menor_tarifa(passageiros):
     """,)
     voo = cur.fetchone()
     conn.commit()
-    if voo:
-        preco_voo = float(voo['preco'])
-        total = passageiros * preco_voo
-        print("O total é %.2f", total)
-        return voo
-    else:
-        return None, None
+    return voo
+
 
 
 #

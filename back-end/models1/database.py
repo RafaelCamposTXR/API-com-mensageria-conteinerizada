@@ -1,6 +1,6 @@
 import psycopg2
 
-conn = psycopg2.connect(host="localhost", dbname="bd_trabalho_asa", user="postgres", password="banco123", port=5432)
+conn = psycopg2.connect(host="localhost", dbname="bd_trabalho_asa", user="postgres", password="bancosenha", port=5432)
 
 cur = conn.cursor()
 cur.execute("""CREATE TABLE IF NOT EXISTS voos (

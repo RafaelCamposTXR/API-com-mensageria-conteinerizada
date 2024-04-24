@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: container-asa-svc
+spec:
+  selector:
+    app: container-asa
+  ports:
+    - protocol: "TCP"
+      port: 5000
+      targetPort: 5000
+  type: LoadBalancer
+
+...
+---
+# kf-api Deployment
+# Defines the deployment of the app running in a pod on any worker node
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: container-asa
+  labels:
+    app: container-asa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: container-asa
+  template:
+    metadata:
+      labels:
+        app: container-asa
+    spec:
+      containers:
+        - name: container-asa
+          image: container-asa
+          ports:
+            - containerPort: 5000
+          imagePullPolicy: Never
+          resources:
+            # You must specify requests for CPU to autoscale
+            # based on CPU utilization
+            requests:
+              cpu: "250m"
